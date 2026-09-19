@@ -1,0 +1,12 @@
+[
+    {
+        "question": "What is the company's revenue in 2024?",
+        "expected_context": "The company's revenue for the fiscal year 2024 reached $100 million.",
+        "expected_answer": "$100 million"
+    },
+    {
+        "question": "Who is the CEO of the company?",
+        "expected_context": "Jane Doe was appointed CEO in 2023.",
+        "expected_answer": "Jane Doe"
+    }
+]
