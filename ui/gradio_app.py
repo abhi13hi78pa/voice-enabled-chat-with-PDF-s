@@ -53,15 +53,23 @@ def chat_interface(message, history, audio_input):
     if not message:
         return "", history, None
         
-    # [PHASE 1 BOUNDARY]
-    # RAG chain and LLM generation planned for Phase 5.
-    answer = "Phase 1: Basic UI Foundation. RAG and conversational memory features will be enabled in upcoming phases."
+    try:
+        from rag.rag_service import generate_answer
+        answer_text, citations = generate_answer(message, document_ids=current_session_docs)
+        
+        # Format the final answer with citations for the UI
+        final_answer = answer_text
+        if citations:
+            final_answer += "\n\n**Sources:**\n" + "\n".join([f"- {c}" for c in citations])
+            
+    except Exception as e:
+        final_answer = f"⚠️ Error: {str(e)}"
     
     # [PHASE 1 BOUNDARY]
     # TTS output planned for Phase 10.
     audio_output = None
     
-    history.append((message, answer))
+    history.append((message, final_answer))
     
     return "", history, audio_output
 
@@ -72,7 +80,7 @@ def clear_session():
 
 def create_ui():
     with gr.Blocks(title="VOICEPDF - PDF Assistant") as demo:
-        gr.Markdown("# VOICEPDF\n### Voice-Enabled Conversational PDF Assistant (Phase 3: Embeddings & Retrieval)")
+        gr.Markdown("# VOICEPDF\n### Voice-Enabled Conversational PDF Assistant (Phase 4: LLM Generation)")
         
         with gr.Row():
             with gr.Column(scale=1):

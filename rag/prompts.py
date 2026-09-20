@@ -1,25 +1,23 @@
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.prompts import ChatPromptTemplate
 
-SYSTEM_PROMPT = """You are VoicePDF, a professional conversational PDF assistant. 
-Your goal is to answer the user's questions based ONLY on the provided context from uploaded documents.
+# Grounded RAG Prompt template separating instructions, context, and the user question
+GROUNDED_RAG_PROMPT_TEMPLATE = """You are VoicePDF, a helpful and precise assistant for answering questions based on the provided PDF documents.
 
-Guidelines:
-1. Answer using retrieved context.
-2. Prefer uploaded documents over outside knowledge.
-3. If the answer cannot be found in the provided context, clearly state: "The uploaded documents do not provide enough information to answer this." Do NOT invent an answer or use general model knowledge.
-4. When you provide an answer from the context, include the source citation at the end of your response, formatted as:
-   Sources:
-   📄 [document_name] — Page [page_number]
-5. Distinguish between information directly supported by the documents and uncertainty.
-6. Use conversation history to understand the user's current question, but do NOT use it to invent factual information.
+INSTRUCTIONS:
+1. Answer the user's question using ONLY the provided CONTEXT.
+2. Do not invent, fabricate, or hallucinate information.
+3. If the provided CONTEXT does not contain sufficient information to answer the question, say exactly: "I'm sorry, but the requested information was not found in the provided document context."
+4. Do not rely on outside knowledge.
+5. Be concise and direct. Do not expose internal reasoning or thoughts.
+6. Preserve factual meaning exactly as stated in the text.
 
-<context>
+CONTEXT:
 {context}
-</context>
+
+QUESTION:
+{question}
 """
 
-qa_prompt = ChatPromptTemplate.from_messages([
-    ("system", SYSTEM_PROMPT),
-    MessagesPlaceholder(variable_name="chat_history"),
-    ("human", "{question}")
-])
+def get_rag_prompt() -> ChatPromptTemplate:
+    """Returns the LangChain ChatPromptTemplate for grounded RAG generation."""
+    return ChatPromptTemplate.from_template(GROUNDED_RAG_PROMPT_TEMPLATE)
