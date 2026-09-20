@@ -3,6 +3,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Project Config
+PROJECT_NAME = os.getenv("PROJECT_NAME", "VoicePDF")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+
 # LLM Config
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openai")
 LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4-turbo-preview")

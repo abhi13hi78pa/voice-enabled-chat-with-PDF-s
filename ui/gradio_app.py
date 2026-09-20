@@ -1,20 +1,14 @@
 import gradio as gr
-import uuid
 import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import uuid
 from ingestion.pdf_loader import load_pdf
 from ingestion.chunker import chunk_documents
-from ingestion.indexer import index_chunks
-from rag.chain import ask_question
-from voice.stt_service import transcribe
-from voice.tts_service import synthesize
-from langchain_core.messages import HumanMessage, AIMessage
 
 # Global state to keep track of uploaded documents in this session
-# In a real app, this would be user-session scoped.
 current_session_docs = []
 
 def process_pdfs(files):
@@ -30,17 +24,16 @@ def process_pdfs(files):
         doc_id = str(uuid.uuid4())
         
         try:
-            # 1. Load
+            # Phase 2: PDF Ingestion & Chunking
             docs = load_pdf(file_path, doc_id)
-            
-            # 2. Chunk
             chunks = chunk_documents(docs)
             
-            # 3. Index
-            num_indexed = index_chunks(doc_id, filename, chunks)
+            # [PHASE 3 BOUNDARY]
+            # Vector indexing is planned for Phase 3.
+            # num_indexed = index_chunks(doc_id, filename, chunks)
             
             current_session_docs.append(doc_id)
-            status_msg.append(f"✅ {filename}: Indexed {num_indexed} chunks.")
+            status_msg.append(f"✅ {filename}: Parsed and split into {len(chunks)} chunks. (Vector indexing pending Phase 3)")
             
         except Exception as e:
             status_msg.append(f"❌ {filename}: Error - {str(e)}")
@@ -50,29 +43,21 @@ def process_pdfs(files):
 def chat_interface(message, history, audio_input):
     global current_session_docs
     
-    # Check if voice input is provided
+    # [PHASE 1 BOUNDARY]
+    # STT pipeline is planned for later phases.
     if audio_input and not message:
-        message = transcribe(audio_input)
-        if not message:
-            message = "Could not transcribe audio."
+        message = "[Audio Input Received - STT decoding pending Phase 9]"
             
     if not message:
         return "", history, None
         
-    # Convert Gradio history to LangChain messages
-    chat_history = []
-    for user_msg, ai_msg in history:
-        chat_history.append(HumanMessage(content=user_msg))
-        chat_history.append(AIMessage(content=ai_msg))
-        
-    # Ask question
-    try:
-        answer, docs = ask_question(message, chat_history, document_ids=current_session_docs)
-    except Exception as e:
-        answer = f"Error generating answer: {str(e)}"
-        
-    # Synthesize audio response
-    audio_output = synthesize(answer)
+    # [PHASE 1 BOUNDARY]
+    # RAG chain and LLM generation planned for Phase 5.
+    answer = "Phase 1: Basic UI Foundation. RAG and conversational memory features will be enabled in upcoming phases."
+    
+    # [PHASE 1 BOUNDARY]
+    # TTS output planned for Phase 10.
+    audio_output = None
     
     history.append((message, answer))
     
@@ -85,7 +70,7 @@ def clear_session():
 
 def create_ui():
     with gr.Blocks(title="VOICEPDF - PDF Assistant") as demo:
-        gr.Markdown("# VOICEPDF\n### Voice-Enabled Conversational PDF Assistant")
+        gr.Markdown("# VOICEPDF\n### Voice-Enabled Conversational PDF Assistant (Phase 1 Foundation)")
         
         with gr.Row():
             with gr.Column(scale=1):
@@ -109,8 +94,6 @@ def create_ui():
         # Event wiring
         process_btn.click(fn=process_pdfs, inputs=[file_input], outputs=[status_output])
         
-        # When submit button is clicked, we call chat_interface
-        # Note: audio_input is reset to None after processing usually, but here we just pass it
         submit_btn.click(
             fn=chat_interface,
             inputs=[msg_input, chatbot, audio_input],

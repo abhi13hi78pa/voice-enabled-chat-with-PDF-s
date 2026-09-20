@@ -21,3 +21,5 @@ def test_chunking_preserves_metadata():
         assert chunk.metadata["document_id"] == "123"
         assert chunk.metadata["page_number"] == 1
         assert "chunk_index" in chunk.metadata
+        assert "chunk_id" in chunk.metadata
+        assert "source" in chunk.metadata
