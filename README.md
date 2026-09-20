@@ -3,13 +3,13 @@
 ## Overview
 VoicePDF is a production-quality, voice-enabled conversational RAG (Retrieval-Augmented Generation) application designed to interact intelligently with PDF documents. It incorporates concepts from the NVIDIA RAG course with a clean, extensible architecture.
 
-**Current Status:** Phase 2 (PDF Ingestion & Chunking)
+**Current Status:** Phase 3 (Embeddings, pgvector & Retrieval)
 
 ## Architecture
 ```mermaid
 flowchart TD
     User([User])
-    User -->|Voice/Text| UI[Gradio UI (Phase 2 Shell)]
+    User -->|Voice/Text| UI[Gradio UI (Phase 3 Shell)]
     User -->|PDF Upload| Ingestion[Ingestion Service]
     
     subgraph Voice Services (Planned)
@@ -19,16 +19,17 @@ flowchart TD
     
     subgraph Document Processing
         Ingestion --> Loader[PDF Loader]
-        Loader --> Chunker[Chunker]
-        Chunker -.-> Indexer[Indexer (Planned)]
+        Loader --> Chunker[Text Chunking]
+        Chunker --> Embedder[Embedding Generation]
+        Embedder --> Indexer[PostgreSQL + pgvector]
     end
     
-    subgraph RAG Pipeline (Planned)
-        UI -.-> RAGChain[LangChain RAG Chain]
+    subgraph RAG Pipeline
+        UI -.-> RAGChain[LangChain RAG Chain (Planned)]
         STT -.-> RAGChain
-        RAGChain -.-> Retriever[Vector Retriever]
+        RAGChain -.-> Retriever[Vector Similarity Retrieval]
         Retriever -.-> VectorDB[(PostgreSQL + pgvector)]
-        RAGChain -.-> LLM[LLM / GenAI]
+        RAGChain -.-> LLM[LLM / GenAI (Planned)]
     end
     
     Indexer -.-> VectorDB
@@ -51,8 +52,8 @@ flowchart TD
 - [x] Basic UI shell built with Gradio. (Phase 1)
 - [x] Foundational tests implemented. (Phase 1)
 - [x] Complete PDF ingestion and chunking (Phase 2).
-- [ ] Vector indexing and embeddings (Phase 3).
-- [ ] Semantic retrieval (Phase 4).
+- [x] Vector indexing and embeddings (Phase 3).
+- [x] Semantic retrieval foundation (Phase 3).
 - [ ] Complete RAG chain (Phase 5).
 - [ ] Voice integration (Phase 9 & 10).
 
@@ -89,6 +90,12 @@ flowchart TD
    ```bash
    pytest tests/
    ```
+
+## Design Decisions (Phase 3)
+*   **Embeddings & Dimensions**: We utilize configurable embeddings (default `text-embedding-3-small` via OpenAI). The vector dimension in the pgvector database inherently matches this configuration (e.g., 1536).
+*   **pgvector & Similarity Search**: Chunk embeddings are stored natively in PostgreSQL using the pgvector extension. This allows us to perform fast, accurate semantic similarity search (using vector distance) directly in our relational database without needing a separate vector DB microservice.
+*   **Retriever Architecture**: The RAG Retriever queries pgvector with a given user prompt, computing the prompt's embedding on the fly and returning the `TOP_K` chunks.
+*   **Metadata & Page Citation Preservation**: The `DocumentChunk` model stores a `metadata_json` field containing `document_name`, `page_number`, `chunk_index`, and a unique `chunk_id`. The retriever returns this payload entirely intact, allowing the future LLM generation phase to ground its answers with explicit, page-level citations.
 
 ## Planned Future Phases
 Phase 2 will implement the PDF ingestion and chunking pipeline. Phase 3-8 will handle Embeddings, Retrieval, LLM Integration, and Memory. Phases 9 and 10 will focus on Voice integration.

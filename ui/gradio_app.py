@@ -24,16 +24,18 @@ def process_pdfs(files):
         doc_id = str(uuid.uuid4())
         
         try:
-            # Phase 2: PDF Ingestion & Chunking
             docs = load_pdf(file_path, doc_id)
             chunks = chunk_documents(docs)
             
-            # [PHASE 3 BOUNDARY]
-            # Vector indexing is planned for Phase 3.
-            # num_indexed = index_chunks(doc_id, filename, chunks)
+            # Phase 3: Vector Indexing & Embeddings
+            from rag.vector_store import index_documents
+            num_indexed = index_documents(doc_id, filename, chunks)
             
             current_session_docs.append(doc_id)
-            status_msg.append(f"✅ {filename}: Parsed and split into {len(chunks)} chunks. (Vector indexing pending Phase 3)")
+            if num_indexed > 0:
+                status_msg.append(f"✅ {filename}: Parsed, split into {len(chunks)} chunks, and indexed into pgvector.")
+            else:
+                status_msg.append(f"ℹ️ {filename}: Already indexed.")
             
         except Exception as e:
             status_msg.append(f"❌ {filename}: Error - {str(e)}")
@@ -70,7 +72,7 @@ def clear_session():
 
 def create_ui():
     with gr.Blocks(title="VOICEPDF - PDF Assistant") as demo:
-        gr.Markdown("# VOICEPDF\n### Voice-Enabled Conversational PDF Assistant (Phase 1 Foundation)")
+        gr.Markdown("# VOICEPDF\n### Voice-Enabled Conversational PDF Assistant (Phase 3: Embeddings & Retrieval)")
         
         with gr.Row():
             with gr.Column(scale=1):
