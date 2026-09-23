@@ -6,12 +6,29 @@ from rag.llm import get_llm
 from rag.context import build_context_string, extract_citations
 from rag.rag_service import generate_answer
 
-def test_llm_initialization_missing_key():
+def test_llm_initialization_missing_nvidia_key():
+    old_provider = settings.LLM_PROVIDER
+    old_key = settings.NVIDIA_API_KEY
+    settings.LLM_PROVIDER = "nvidia"
+    settings.NVIDIA_API_KEY = ""
+    try:
+        with pytest.raises(ValueError, match="NVIDIA_API_KEY is missing"):
+            get_llm()
+    finally:
+        settings.LLM_PROVIDER = old_provider
+        settings.NVIDIA_API_KEY = old_key
+
+def test_llm_initialization_missing_openai_key():
+    old_provider = settings.LLM_PROVIDER
     old_key = settings.OPENAI_API_KEY
+    settings.LLM_PROVIDER = "openai"
     settings.OPENAI_API_KEY = ""
-    with pytest.raises(ValueError, match="OPENAI_API_KEY is missing"):
-        get_llm()
-    settings.OPENAI_API_KEY = old_key
+    try:
+        with pytest.raises(ValueError, match="OPENAI_API_KEY is missing"):
+            get_llm()
+    finally:
+        settings.LLM_PROVIDER = old_provider
+        settings.OPENAI_API_KEY = old_key
 
 def test_context_builder():
     docs = [
@@ -45,13 +62,13 @@ def test_generate_answer_orchestration(mock_get_llm, mock_get_retriever):
     
     # Simulate LLM response
     mock_response = MagicMock()
-    mock_response.content = "This is the generated answer."
+    mock_response.content = "This is the generated answer from Nemotron."
     mock_llm.invoke.return_value = mock_response
     mock_llm.return_value = mock_response
     
     answer, citations = generate_answer("What is this?", document_ids=["123"])
     
-    assert answer == "This is the generated answer."
+    assert answer == "This is the generated answer from Nemotron."
     assert "doc.pdf — Page 5" in citations
     mock_retriever.invoke.assert_called_once_with("What is this?")
 
@@ -62,7 +79,7 @@ def test_generate_answer_empty_retrieval(mock_get_retriever):
     mock_retriever.invoke.return_value = []
     
     answer, citations = generate_answer("No docs match", document_ids=["123"])
-    assert "not found" in answer.lower()
+    assert "no relevant information" in answer.lower()
     assert len(citations) == 0
 
 def test_generate_answer_empty_question():
@@ -92,9 +109,9 @@ def test_generate_answer_llm_failure(mock_get_llm, mock_get_retriever):
     mock_get_retriever.return_value = mock_retriever
     
     mock_llm = MagicMock()
-    mock_llm.invoke.side_effect = RuntimeError("OpenAI API rate limit exceeded")
-    mock_llm.side_effect = RuntimeError("OpenAI API rate limit exceeded")
+    mock_llm.invoke.side_effect = RuntimeError("NVIDIA API rate limit exceeded")
+    mock_llm.side_effect = RuntimeError("NVIDIA API rate limit exceeded")
     mock_get_llm.return_value = mock_llm
     
-    with pytest.raises(RuntimeError, match="OpenAI API rate limit exceeded"):
+    with pytest.raises(RuntimeError, match="rate limit"):
         generate_answer("What is this?", document_ids=["doc1"])

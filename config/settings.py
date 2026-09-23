@@ -7,9 +7,11 @@ load_dotenv()
 PROJECT_NAME = os.getenv("PROJECT_NAME", "VoicePDF")
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
-# LLM Config
-LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openai")
-LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4-turbo-preview")
+# LLM Config (NVIDIA Nemotron default)
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "nvidia")
+LLM_MODEL = os.getenv("LLM_MODEL", "nvidia/nemotron-3.5-lightning-30b-a3b")
+NVIDIA_BASE_URL = os.getenv("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 # Embeddings Config

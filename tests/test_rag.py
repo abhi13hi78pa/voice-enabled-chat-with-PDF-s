@@ -6,16 +6,35 @@ from rag.vector_store import index_documents
 from rag.retriever import get_retriever
 from config import settings
 
-def test_embeddings_initialization_missing_key():
-    # Store old key
+def test_embeddings_initialization_missing_openai_key():
+    # Store old values
     old_key = settings.OPENAI_API_KEY
+    old_provider = settings.EMBEDDING_PROVIDER
+    settings.EMBEDDING_PROVIDER = "openai"
     settings.OPENAI_API_KEY = ""
     
-    with pytest.raises(ValueError, match="OPENAI_API_KEY is missing"):
-        get_embeddings_model()
-        
-    # Restore old key
-    settings.OPENAI_API_KEY = old_key
+    try:
+        with pytest.raises(ValueError, match="OPENAI_API_KEY is missing"):
+            get_embeddings_model()
+    finally:
+        # Restore old values
+        settings.OPENAI_API_KEY = old_key
+        settings.EMBEDDING_PROVIDER = old_provider
+
+def test_embeddings_initialization_missing_nvidia_key():
+    # Store old values
+    old_key = settings.NVIDIA_API_KEY
+    old_provider = settings.EMBEDDING_PROVIDER
+    settings.EMBEDDING_PROVIDER = "nvidia"
+    settings.NVIDIA_API_KEY = ""
+    
+    try:
+        with pytest.raises(ValueError, match="NVIDIA_API_KEY is missing"):
+            get_embeddings_model()
+    finally:
+        # Restore old values
+        settings.NVIDIA_API_KEY = old_key
+        settings.EMBEDDING_PROVIDER = old_provider
 
 @patch("rag.embeddings.OpenAIEmbeddings")
 def test_retriever_configuration(mock_embeddings_cls):

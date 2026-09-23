@@ -14,5 +14,19 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: voicepdf_app
+    depends_on:
+      - db
+    ports:
+      - "7860:7860"
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-voicepdf}
+    restart: unless-stopped
+
 volumes:
   postgres_data:

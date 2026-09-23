@@ -1,5 +1,5 @@
 import os
-import PyPDF2
+import pypdf
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.documents import Document
 
@@ -14,7 +14,7 @@ def validate_pdf(file_path: str) -> bool:
     # Basic check for corrupt or completely empty files
     try:
         with open(file_path, 'rb') as f:
-            reader = PyPDF2.PdfReader(f)
+            reader = pypdf.PdfReader(f)
             if len(reader.pages) == 0:
                 raise ValueError("PDF has no pages.")
     except Exception as e:

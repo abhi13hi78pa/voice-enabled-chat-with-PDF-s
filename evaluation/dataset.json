@@ -1,12 +1,62 @@
 [
-    {
-        "question": "What is the company's revenue in 2024?",
-        "expected_context": "The company's revenue for the fiscal year 2024 reached $100 million.",
-        "expected_answer": "$100 million"
-    },
-    {
-        "question": "Who is the CEO of the company?",
-        "expected_context": "Jane Doe was appointed CEO in 2023.",
-        "expected_answer": "Jane Doe"
-    }
+  {
+    "question": "What is the company's annual revenue for 2024?",
+    "expected_context": "annual revenue",
+    "expected_answer": "revenue"
+  },
+  {
+    "question": "Who is the CEO of the company?",
+    "expected_context": "CEO",
+    "expected_answer": "CEO"
+  },
+  {
+    "question": "What are the main products offered by the company?",
+    "expected_context": "products",
+    "expected_answer": "products"
+  },
+  {
+    "question": "How many employees does the company have?",
+    "expected_context": "employees",
+    "expected_answer": "employees"
+  },
+  {
+    "question": "What is the company's mission statement?",
+    "expected_context": "mission",
+    "expected_answer": "mission"
+  },
+  {
+    "question": "Where is the company headquartered?",
+    "expected_context": "headquarters",
+    "expected_answer": "headquartered"
+  },
+  {
+    "question": "What were the key achievements in Q3?",
+    "expected_context": "Q3",
+    "expected_answer": "achievements"
+  },
+  {
+    "question": "What is the company's growth strategy?",
+    "expected_context": "growth",
+    "expected_answer": "strategy"
+  },
+  {
+    "question": "What risks does the company face?",
+    "expected_context": "risks",
+    "expected_answer": "risk"
+  },
+  {
+    "question": "What information is available about the company's sustainability initiatives?",
+    "expected_context": "sustainability",
+    "expected_answer": "sustainability"
+  },
+  {
+    "question": "What is the company's stock price trend?",
+    "expected_context": "stock",
+    "expected_answer": "This information is not available in the document"
+  },
+  {
+    "question": "Summarize the key financial highlights.",
+    "expected_context": "financial",
+    "expected_answer": "financial"
+  }
 ]
